@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken')
 const keys = require('../../configs/keys')
 const passport = require('passport')
 const validateRegisterInput = require('../../validations/register')
+const validateLoginInput = require('../../validations/login')
 
 // load User model
 const User = require('../../models/User')
@@ -67,10 +68,19 @@ router.post('/register', (req, res) => {
 router.post('/login', (req, res) => {
     const {email, password} = req.body;
 
+    const {errors, isValid } = validateLoginInput(req.body)
+
+    if(!isValid){
+        return res.status(400).json(errors)
+    }
+
     User.findOne({email: email})
         .then(user => {
             // check if user is existed
-            if(!user) return res.status(404).json({error: 'User not found'})
+            if(!user) {
+                errors.user = 'User not found'
+                return res.status(404).json(errors)
+            }
 
             // check password
             bcrypt.compare(password, user.password)
@@ -83,11 +93,15 @@ router.post('/login', (req, res) => {
                         }
                         // generate token
                         jwt.sign(payload, keys.tokenSecretKey, { expiresIn: 3600}, (err, token) => {
-                            if(err) return res.status(500).json({error: 'Internal server error'})
+                            if(err) {
+                                errors.server = 'Internal server error'
+                                return res.status(500).json(errors)
+                            }
                             return res.json({msg: 'Login successful', token})
                         })
                     }else{
-                        return res.status(400).json({error: 'Password is incorrect'})
+                        errors.password = 'Password is incorrect'
+                        return res.status(400).json(errors)
                     }
                 })
         })
