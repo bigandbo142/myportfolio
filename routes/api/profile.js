@@ -3,6 +3,9 @@ const router = express.Router()
 const passport = require('passport')
 const keys = require('../../configs/keys')
 
+// validator for Profile input
+const validateProfileInput = require('../../validations/profile')
+
 // load Profile schema
 const Profile = require('../../models/Profile')
 
@@ -25,6 +28,7 @@ router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     const errors = {}
 
     Profile.findOne({user: req.user.id})
+        .populate('user', ['name', 'avatar'])
         .then(profile => {
             if(!profile){
                 errors.noprofile = 'This user does not initialize profile'
@@ -41,6 +45,11 @@ router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
 // type     POST
 // @access  Private
 router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
+
+    const { errors, isValid } = validateProfileInput(req.body)
+
+    if(!isValid) return res.status(400).json(errors)
+
     const profileData = {}
     profileData.user = req.user.id
     // collect data from request
@@ -67,8 +76,6 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     if(req.body.facebook) profileData.socials.facebook = req.body.facebook
     if(req.body.linkedin) profileData.socials.linkedin = req.body.linkedin
     if(req.body.instagram) profileData.socials.instagram = req.body.instagram
-
-    const errors = {}
 
     // check if user has profile
     Profile.findOne({user: req.user.id})
