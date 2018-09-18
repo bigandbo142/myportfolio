@@ -100,4 +100,73 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
         })
 })
 
+// @route   api/profile/handle/:handle
+// @desc    get user profile through handle
+// type     GET
+// @access  Public
+router.get('/handle/:handle', (req, res) => {
+    const errors = {}
+
+    Profile.findOne({handle: req.params.handle})
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if(!profile){
+                errors.noprofile = 'There is no profile for that handle'
+                return res.status(404).json(errors)
+            }
+
+            return res.json(profile)
+        })
+        .catch(err => {
+            errors.noprofile = 'There is no profile for that handle'
+            res.status(400).json(errors)
+        })
+})
+
+// @route   api/profile/user/:user_id
+// @desc    get user profile through user id
+// type     GET
+// @access  Public
+router.get('/user/:user_id', (req, res) => {
+    const errors = {}
+
+    Profile.findOne({user: req.params.user_id})
+        .populate('user', ['name', 'avatar'])
+        .then(profile => {
+            if(!profile){
+                errors.noprofile = 'There is no profile for that handle'
+                return res.status(404).json(errors)
+            }
+
+            return res.json(profile)
+        })
+        .catch(err => {
+            errors.noprofile = 'There is no profile for that user id'
+            res.status(400).json(errors)
+        })
+})
+
+// @route   api/profile/all
+// @desc    get all user profiles
+// type     GET
+// @access  Public
+router.get('/all', (req, res) => {
+    const errors = {}
+
+    Profile.find()
+        .populate('user', ['name', 'avatar'])
+        .then(profiles => {
+            if(!profiles){
+                errors.noprofile = 'There are no profiles'
+                return res.status(404).json(errors)
+            }
+
+            return res.json(profiles)
+        })
+        .catch(err => {
+            errors.noprofile = 'There are no profiles'
+            res.status(400).json(errors)
+        })
+})
+
 module.exports = router
