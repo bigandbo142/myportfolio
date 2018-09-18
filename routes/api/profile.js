@@ -269,4 +269,76 @@ router.post('/education', passport.authenticate('jwt', {session : false}), (req,
         })
 })
 
+// @route   api/profile/experience/:exp_id
+// @desc    remove experience from profile
+// type     DELETE
+// @access  Private
+router.delete('/experience/:exp_id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    const errors = {}
+
+    Profile.findOne({user: req.user.id})
+        .then(profile => {
+            if(!profile){
+                errors.noprofile = 'There is no profile for user'
+                return res.status(404).json(errors)
+            }
+
+            // get the index need to remove
+            const removeIndex = profile.experiences.map(exp => exp.id).indexOf(req.params.exp_id)
+
+            profile.experiences.splice(removeIndex, 1)
+
+            profile.save().then(prof => res.json(prof))
+        })
+        .catch(err => {
+            errors.noprofile = 'There is no profile for user'
+            return res.status(400).json(errors)
+        })
+})
+
+
+// @route   api/profile/education/:edu_id
+// @desc    remove education from profile
+// type     DELETE
+// @access  Private
+router.delete('/education/:edu_id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    const errors = {}
+
+    Profile.findOne({user: req.user.id})
+        .then(profile => {
+            if(!profile){
+                errors.noprofile = 'There is no profile for user'
+                return res.status(404).json(errors)
+            }
+
+            // get the index need to remove
+            const removeIndex = profile.educations.map(edu => edu.id).indexOf(req.params.edu_id)
+
+            profile.educations.splice(removeIndex, 1)
+
+            profile.save().then(prof => res.json(prof))
+        })
+        .catch(err => {
+            errors.noprofile = 'There is no profile for user'
+            return res.status(400).json(errors)
+        })
+})
+
+// @route   api/profile/
+// @desc    delete user and profile belongs to that user.
+// type     DELETE
+// @access  Private
+router.delete('/', passport.authenticate('jwt', {session : false}), (req, res) => {
+    Profile.findOneAndRemove({user: req.user.id})
+        .then(() => {
+            User.findOneAndRemove({_id: req.user.id})
+                .then(() => {
+                    return res.json({msg: 'Delete successful'})
+                })
+        })
+        .catch(err => {
+            return res.status(400).json({msg: 'Delete failed'})
+        })
+})
+
 module.exports = router
