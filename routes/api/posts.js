@@ -100,4 +100,69 @@ router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res)
         })
 })
 
+// @route   api/posts/like/:id
+// @desc    like a post
+// @type    POST
+// @access  Private
+router.post('/like/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    let errors = {}
+
+    Profile.findOne({ user: req.user.id})
+        .then(profile => {
+            Post.findById(req.params.id)
+                .then(post => {
+                    if(post.likes.filter(item => typeof item.user !== 'undefined' && item.user.toString() === req.user.id).length > 0){
+                        errors.alreadyliked = 'You already liked this post'
+                        return res.status(400).json(errors)
+                    }
+
+                    post.likes.unshift({user : req.user.id})
+                    post.save().then(post => res.json(post))
+                })
+                .catch(err => {
+                    console.log(err)
+                    errors.postnotfound = 'Post not found'
+                    return res.status(404).json(err)
+                })
+        })
+        .catch(err => {
+            errors.unauthorized = 'User not authorized'
+            return res.status(401).json(errors)
+        })
+})
+
+// @route   api/posts/unlike/:id
+// @desc    unlike a post
+// @type    POST
+// @access  Private
+router.post('/unlike/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    let errors = {}
+
+    Profile.findOne({ user: req.user.id})
+        .then(profile => {
+            Post.findById(req.params.id)
+                .then(post => {
+                    if(post.likes.filter(item => typeof item.user !== 'undefined' && item.user.toString() === req.user.id).length === 0){
+                        errors.alreadyliked = 'You have not yet liked this post'
+                        return res.status(400).json(errors)
+                    }
+
+                    // get remove index
+                    const removeIndex = post.likes.filter(item => typeof item.user !== 'undefined').map(item => item.user.id)
+                        .indexOf(req.user.id)
+
+                    post.likes.splice(removeIndex, 1)
+                    post.save().then(post => res.json(post))
+                })
+                .catch(err => {
+                    console.log(err)
+                    errors.postnotfound = 'Post not found'
+                    return res.status(404).json(err)
+                })
+        })
+        .catch(err => {
+            errors.unauthorized = 'User not authorized'
+            return res.status(401).json(errors)
+        })
+})
 module.exports = router
