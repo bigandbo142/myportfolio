@@ -11,6 +11,9 @@ const Profile = require('../../models/Profile')
 // Validator for Post input
 const validatePostInput = require('../../validations/post')
 
+// Validator for Comment input
+const validateCommentInput = require('../../validations/comment')
+
 // @route   api/posts/test
 // @desc    Test posts api 
 // @access  Public
@@ -143,7 +146,7 @@ router.post('/unlike/:id', passport.authenticate('jwt', {session: false}), (req,
             Post.findById(req.params.id)
                 .then(post => {
                     if(post.likes.filter(item => typeof item.user !== 'undefined' && item.user.toString() === req.user.id).length === 0){
-                        errors.alreadyliked = 'You have not yet liked this post'
+                        errors.unliked = 'You have not yet liked this post'
                         return res.status(400).json(errors)
                     }
 
@@ -163,6 +166,66 @@ router.post('/unlike/:id', passport.authenticate('jwt', {session: false}), (req,
         .catch(err => {
             errors.unauthorized = 'User not authorized'
             return res.status(401).json(errors)
+        })
+})
+
+
+// @route   api/posts/comment/:post_id
+// @desc    comment in a post
+// @type    POST
+// @access  Private
+router.post('/comment/:post_id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    const { errors, isValid } = validateCommentInput(req.body)
+
+    if(!isValid){
+        return res.status(400).json(errors)
+    }
+
+    Post.findById(req.params.post_id)
+        .then(post => {
+            const newComment = {
+                user: req.user.id,
+                content : req.body.content,
+                avatar : req.body.avatar,
+                name : req.body.name
+            }
+
+            post.comments.unshift(newComment)
+
+            post.save().then(post => res.json(post))
+        })
+        .catch(err => {
+            errors.postnotfound = 'Post not found'
+            return res.status(404).json(errors)
+        })
+})
+
+
+// @route   api/posts/comment/:post_id/:comment_id
+// @desc    delete comment in a post
+// @type    DELETE
+// @access  Private
+router.delete('/comment/:post_id/:comment_id', passport.authenticate('jwt', {session: false}), (req, res) => {
+    let errors = {}
+    Post.findById(req.params.post_id)
+        .then(post => {
+            if(post.comments.filter(item => item.id.toString() === req.params.comment_id).length === 0){
+                errors.commentnotfound = 'Comment not found'
+                return res.status(404).json(errors)
+            }
+
+            // get remove index
+            const removeIndex = post.comments.map(item => item.id)
+                .indexOf(req.params.comment_id)
+            
+            post.comments.splice(removeIndex, 1)
+
+            post.save().then(() => res.json({success: true}))
+
+        })
+        .catch(err => {
+            errors.postnotfound = 'Post not found'
+            return res.status(404).json(errors)
         })
 })
 module.exports = router
