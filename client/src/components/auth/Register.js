@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import classnames from 'classnames'
 
 import PropTypes from 'prop-types'
+import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { registerUser } from '../../actions/authAction'
 
@@ -22,6 +23,12 @@ class Register extends Component {
         this.onSubmit = this.onSubmit.bind(this)
     }
 
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.errors){
+            this.setState({errors: nextProps.errors})
+        }
+    }
+
     onChange(e){
         this.setState({[e.target.name] : e.target.value})
     }
@@ -36,14 +43,12 @@ class Register extends Component {
             passwordConfirm: this.state.password2
         }
 
-        this.props.registerUser(newUser)
+        this.props.registerUser(newUser, this.props.history)
     }
 
     render() {
 
         const { errors } = this.state;
-
-        const { user } = this.props.auth;
 
         return (
             <div className="register">
@@ -122,7 +127,8 @@ Register.propTypes = {
 }
 
 const mapStateToProps = (state) => ({
-    auth: state.auth
+    auth: state.auth,
+    errors: state.errors
 })
 
-export default connect(mapStateToProps, {registerUser})(Register)
+export default connect(mapStateToProps, {registerUser})(withRouter(Register))
