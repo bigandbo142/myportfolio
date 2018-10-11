@@ -1,2 +1,5 @@
 export const TEST_DISPATCH = 'TEST_DISPATCH'
 export const GET_ERRORS = 'GET_ERRORS'
+export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
+export const LOGIN_FAILURE = 'LOGIN_FAILURE'
+export const LOGIN_REQUEST = 'LOGIN_REQUEST'
