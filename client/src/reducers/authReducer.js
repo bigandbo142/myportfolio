@@ -1,4 +1,4 @@
-import { TEST_DISPATCH, LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS } from "../actions/types";
+import { TEST_DISPATCH, LOGIN_FAILURE, LOGIN_SUCCESS, LOGOUT_SUCCESS } from "../actions/types";
 import isEmpty from '../utils/is-empty';
 
 const initialState = {
@@ -14,6 +14,12 @@ export default function(state = initialState, action) {
                 user : action.payload
             }
         case LOGIN_SUCCESS:
+            return {
+                ...state,
+                isAuthenticated: !isEmpty(action.payload),
+                user : action.payload
+            }
+        case LOGOUT_SUCCESS:
             return {
                 ...state,
                 isAuthenticated: !isEmpty(action.payload),

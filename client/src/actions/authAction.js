@@ -1,4 +1,4 @@
-import { LOGIN_REQUEST, LOGIN_FAILURE, LOGIN_SUCCESS, GET_ERRORS }  from './types'
+import { LOGIN_SUCCESS, GET_ERRORS, LOGOUT_SUCCESS }  from './types'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import setAuthToken from '../utils/setAuthToken'
@@ -18,6 +18,7 @@ export const registerUser =  (userData, history) => async(dispatch) => {
     }
 }
 
+// do login 
 export const loginUser = (userData) => async(dispatch) => {
     try{
         let res = await axios.post('/api/users/login', userData)
@@ -44,4 +45,19 @@ export const loginUser = (userData) => async(dispatch) => {
             payload: err.response.data
         })
     }
+}
+
+// do logout
+export const logoutUser = () => (dispatch) => {
+    // remove token from local storage
+    localStorage.removeItem('jwt_token')
+
+    // remove auth header from axios request
+    setAuthToken(false)
+
+    // dispath state 
+    dispatch({
+        type: LOGOUT_SUCCESS,
+        payload : {}
+    })
 }

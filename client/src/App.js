@@ -12,6 +12,7 @@ import Footer from './components/layout/Footer';
 import Landing from './components/layout/Landing';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import { logoutUser } from './actions/authAction';
 
 // check if token is available
 if(localStorage.jwt_token){ 
@@ -21,11 +22,25 @@ if(localStorage.jwt_token){
   // decode user's data from token
   const userData = jwt_decode(localStorage.jwt_token)
 
-  // set user data to state
-  store.dispatch({
-    type: LOGIN_SUCCESS,
-    payload: userData
-  })
+  // check if token is expired ?
+
+  let currentTime = Date.now() / 1000
+  if(currentTime >= userData.exp){
+
+    // do logout user
+    store.dispatch(logoutUser())
+
+    // redirect to login screen
+    window.location.href = '/login'
+  }else{
+    // set user data to state
+    store.dispatch({
+      type: LOGIN_SUCCESS,
+      payload: userData
+    })
+  }
+
+  
 }
 
 class App extends Component {
