@@ -10,6 +10,7 @@ import { LOGIN_SUCCESS } from './actions/types'
 import NavBar from './components/layout/NavBar';
 import Footer from './components/layout/Footer';
 import Landing from './components/layout/Landing';
+import Dashboard from './components/dashboard/Dashboard';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
 import { logoutUser } from './actions/authAction';
@@ -51,6 +52,7 @@ class App extends Component {
           <div className="App">
             <NavBar />
             <Route exact path="/" component={Landing} />
+            <Route exact path="/dashboard" component={Dashboard} />
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
             <Footer />
