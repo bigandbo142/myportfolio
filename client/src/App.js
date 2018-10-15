@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import {BrowserRouter as Router, Route} from 'react-router-dom'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import PrivateRoute from './components/common/PrivateRoute'
 import { Provider } from 'react-redux'
 import store from './store'
 import setAuthToken from './utils/setAuthToken'
@@ -52,7 +53,10 @@ class App extends Component {
           <div className="App">
             <NavBar />
             <Route exact path="/" component={Landing} />
-            <Route exact path="/dashboard" component={Dashboard} />
+            <Switch>
+              <PrivateRoute exact path="/dashboard" component={Dashboard} />
+            </Switch>
+            
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
             <Footer />
