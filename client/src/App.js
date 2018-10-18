@@ -14,6 +14,7 @@ import Landing from './components/layout/Landing';
 import Dashboard from './components/dashboard/Dashboard';
 import Register from './components/auth/Register';
 import Login from './components/auth/Login';
+import CreateProfile from './components/create-profile/CreateProfile'
 import { logoutUser } from './actions/authAction';
 
 // check if token is available
@@ -56,7 +57,9 @@ class App extends Component {
             <Switch>
               <PrivateRoute exact path="/dashboard" component={Dashboard} />
             </Switch>
-            
+            <Switch>
+              <PrivateRoute exact path="/create-profile" component={CreateProfile} />
+            </Switch>
             <Route exact path="/register" component={Register} />
             <Route exact path="/login" component={Login} />
             <Footer />
